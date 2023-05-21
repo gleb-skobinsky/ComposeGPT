@@ -38,6 +38,7 @@ import androidx.navigation.fragment.NavHostFragment
 class NavActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -61,6 +62,7 @@ class NavActivity : AppCompatActivity() {
                 }
             }
         )
+
     }
 
     override fun onSupportNavigateUp(): Boolean {
