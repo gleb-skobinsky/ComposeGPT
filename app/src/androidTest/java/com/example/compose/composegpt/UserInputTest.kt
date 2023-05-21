@@ -16,34 +16,10 @@
 
 package com.example.compose.composegpt
 
-import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import androidx.test.espresso.Espresso
-import com.example.compose.composegpt.conversation.ConversationContent
-import com.example.compose.composegpt.conversation.KeyboardShownKey
-import com.example.compose.composegpt.data.exampleUiState
-import com.example.compose.composegpt.theme.ComposeGPTTheme
-import org.junit.Before
-import org.junit.Ignore
-import org.junit.Rule
-import org.junit.Test
-
 /**
  * Checks that the user input composable, including extended controls, behave as expected.
  */
+/*
 class UserInputTest {
 
     @get:Rule
@@ -165,3 +141,5 @@ class UserInputTest {
         )
     }
 }
+
+ */

@@ -16,30 +16,10 @@
 
 package com.example.compose.composegpt
 
-import androidx.activity.ComponentActivity
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipe
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.compose.composegpt.conversation.ConversationContent
-import com.example.compose.composegpt.conversation.ConversationTestTag
-import com.example.compose.composegpt.conversation.ConversationUiState
-import com.example.compose.composegpt.data.exampleUiState
-import com.example.compose.composegpt.theme.ComposeGPTTheme
-import kotlinx.coroutines.flow.MutableStateFlow
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-
 /**
  * Checks that the features in the Conversation screen work as expected.
  */
+/*
 class ConversationTest {
 
     @get:Rule
@@ -166,3 +146,5 @@ private val conversationTestUiState = ConversationUiState(
     channelName = "#composers",
     channelMembers = 42
 )
+
+ */

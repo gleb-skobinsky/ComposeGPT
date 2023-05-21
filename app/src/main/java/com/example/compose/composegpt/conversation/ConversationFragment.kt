@@ -23,13 +23,9 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.findNavController
 import com.example.compose.composegpt.MainViewModel
-import com.example.compose.composegpt.R
-import com.example.compose.composegpt.data.exampleUiState
 import com.example.compose.composegpt.theme.ComposeGPTTheme
 
 class ConversationFragment : Fragment() {
@@ -45,20 +41,7 @@ class ConversationFragment : Fragment() {
 
         setContent {
             ComposeGPTTheme {
-                ConversationContent(
-                    uiState = exampleUiState,
-                    navigateToProfile = { user ->
-                        // Click callback
-                        val bundle = bundleOf("userId" to user)
-                        findNavController().navigate(
-                            R.id.nav_profile,
-                            bundle
-                        )
-                    },
-                    onNavIconPressed = {
-                        activityViewModel.openDrawer()
-                    }
-                )
+
             }
         }
     }
