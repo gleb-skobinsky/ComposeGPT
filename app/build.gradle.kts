@@ -79,6 +79,8 @@ android {
     }
 }
 
+val filamentVersion = "1.36.0"
+
 dependencies {
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
@@ -106,6 +108,14 @@ dependencies {
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.compose.ui.viewbinding)
     implementation(libs.androidx.compose.ui.googlefonts)
+
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    annotationProcessor(libs.androidx.room.compiler)
+
+    implementation("com.google.android.filament:filament-android:$filamentVersion")
+    implementation("com.google.android.filament:filament-utils-android:$filamentVersion")
+    implementation("com.google.android.filament:gltfio-android:$filamentVersion")
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
