@@ -17,23 +17,10 @@
 package com.example.compose.composegpt.profile
 
 import android.content.Context
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import com.example.compose.composegpt.FunctionalityNotAvailablePopup
 import com.example.compose.composegpt.MainViewModel
-import com.example.compose.composegpt.R
-import com.example.compose.composegpt.theme.ComposeGPTTheme
 
 class ProfileFragment : Fragment() {
 

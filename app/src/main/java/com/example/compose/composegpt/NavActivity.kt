@@ -17,8 +17,6 @@
 package com.example.compose.composegpt
 
 import android.graphics.PixelFormat
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -34,15 +32,10 @@ import androidx.core.view.isGone
 import androidx.lifecycle.lifecycleScope
 import com.example.compose.composegpt.theme.ComposeGPTTheme
 import com.google.android.filament.View
-import com.google.ar.sceneform.Node
-import com.google.ar.sceneform.rendering.ModelRenderable
 import io.github.sceneview.SceneView
-import io.github.sceneview.loaders.loadHdrIndirectLight
-import io.github.sceneview.loaders.loadHdrSkybox
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.nodes.ModelNode
-import java.util.concurrent.CompletableFuture
 
 /**
  * Main activity for the app.
@@ -114,9 +107,6 @@ class NavActivity : AppCompatActivity(R.layout.activity) {
         super.onPause()
         transparentSceneView.pause()
     }
-
-
-
 
 
     /*
