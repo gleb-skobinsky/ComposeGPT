@@ -16,65 +16,117 @@
 
 package com.example.compose.composegpt
 
+import android.graphics.PixelFormat
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.view.WindowCompat
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
+import androidx.core.view.isGone
+import androidx.lifecycle.lifecycleScope
+import com.example.compose.composegpt.theme.ComposeGPTTheme
+import com.google.android.filament.View
+import com.google.ar.sceneform.Node
+import com.google.ar.sceneform.rendering.ModelRenderable
+import io.github.sceneview.SceneView
+import io.github.sceneview.loaders.loadHdrIndirectLight
+import io.github.sceneview.loaders.loadHdrSkybox
+import io.github.sceneview.math.Position
+import io.github.sceneview.math.Rotation
+import io.github.sceneview.nodes.ModelNode
+import java.util.concurrent.CompletableFuture
 
 /**
  * Main activity for the app.
  */
-class NavActivity : AppCompatActivity() {
+class NavActivity : AppCompatActivity(R.layout.activity) {
     private val viewModel: MainViewModel by viewModels()
 
+    private lateinit var transparentSceneView: SceneView
+    private lateinit var composeView: ComposeView
+    private lateinit var imageView: android.view.View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Turn off the decor fitting system windows, which allows us to handle insets,
-        // including IME animations
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        setContentView(
-            ComposeView(this).apply {
-                consumeWindowInsets = false
-                setContent {
+        setContentView(R.layout.activity)
+        imageView = findViewById(R.id.imageView)
+        transparentSceneView = findViewById<SceneView?>(R.id.backgroundSceneView).apply {
+            setLifecycle(lifecycle)
+        }
+        composeView = findViewById<ComposeView>(R.id.composeView).apply {
+            setContent {
+                ComposeGPTTheme {
                     Row(
-                        Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Button(onClick = { }) {
+                        Button({}) {
                             Text("Hello world")
                         }
                     }
                 }
             }
-        )
+        }
 
+        lifecycleScope.launchWhenCreated {
+            val model = transparentSceneView.modelLoader.loadModel("models/MaterialSuite.glb")!!
+            transparentSceneView.setZOrderOnTop(true)
+            transparentSceneView.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            transparentSceneView.holder.setFormat(PixelFormat.TRANSLUCENT)
+            transparentSceneView.filamentView.blendMode = View.BlendMode.TRANSLUCENT
+            transparentSceneView.scene.skybox = null
+            val options = transparentSceneView.renderer.clearOptions
+            options.clear = true
+            transparentSceneView.renderer.clearOptions = options
+            val modelNode = ModelNode(transparentSceneView, model).apply {
+                transform(
+                    position = Position(z = -4.0f),
+                    rotation = Rotation(x = 15.0f)
+                )
+                scaleToUnitsCube(2.0f)
+                playAnimation()
+            }
+            transparentSceneView.addChildNode(modelNode)
+
+            imageView.isGone = true
+        }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return findNavController().navigateUp() || super.onSupportNavigateUp()
+    override fun onResume() {
+        super.onResume()
+        try {
+            transparentSceneView.resume()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
-    /**
-     * See https://issuetracker.google.com/142847973
+    override fun onPause() {
+        super.onPause()
+        transparentSceneView.pause()
+    }
+
+
+
+
+
+    /*
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        supportFragmentManager.commit {
+            add(R.id.containerFragment, MainFragment::class.java, Bundle())
+        }
+    }
      */
-    private fun findNavController(): NavController {
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        return navHostFragment.navController
-    }
 }

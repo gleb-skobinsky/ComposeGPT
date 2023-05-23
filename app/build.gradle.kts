@@ -71,12 +71,14 @@ android {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
+    /*
     packaging.resources {
         // Multiple dependency bring these files in. Exclude them to enable
         // our test APK to build (has no effect on our AARs)
         excludes += "/META-INF/AL2.0"
         excludes += "/META-INF/LGPL2.1"
     }
+     */
 }
 
 val filamentVersion = "1.8.1"
@@ -112,6 +114,9 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     annotationProcessor(libs.androidx.room.compiler)
+
+    implementation("io.github.sceneview:sceneview:1.0.7")
+    implementation("com.gorisse.thomas.sceneform:sceneform:1.21.0")
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 

@@ -46,6 +46,7 @@ class ProfileFragment : Fragment() {
         val userId = arguments?.getString("userId")
         // viewModel.setUserId(userId)
     }
+    /*
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,4 +80,5 @@ class ProfileFragment : Fragment() {
         }
         return rootView
     }
+     */
 }
