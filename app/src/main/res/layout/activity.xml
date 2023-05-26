@@ -3,15 +3,10 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:background="@android:color/white"
+             android:configChanges="orientation|screenSize"
              tools:context="com.example.compose.composegpt.NavActivity">
 
-    <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_launcher_foreground"/>
-
-    <io.github.sceneview.SceneView
+    <com.example.compose.composegpt.ChloeSceneView
             android:id="@+id/backgroundSceneView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
