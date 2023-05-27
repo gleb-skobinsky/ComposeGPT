@@ -6,7 +6,7 @@
              android:configChanges="orientation|screenSize"
              tools:context="com.example.compose.composegpt.NavActivity">
 
-    <com.example.compose.composegpt.ChloeSceneView
+    <com.example.compose.composegpt.views.ChloeSceneView
             android:id="@+id/backgroundSceneView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
