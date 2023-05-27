@@ -1,5 +1,6 @@
 package com.example.compose.composegpt.components
 
+import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -7,8 +8,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
@@ -71,12 +75,21 @@ private fun BoxScope.RecordingButton(onAction: () -> Unit) {
                 onAction()
             }
             .clip(RoundedCornerShape(50))
-            .drawBehind {
-                val radius = 32
-                val innerRadius = 30
-                drawPetal(45.0, radius, innerRadius, density, firstPetalBrush)
-                drawPetal(80.0, radius, innerRadius, density, secondPetalBrush)
-                drawPetal(127.0, radius, innerRadius, density, thirdPetalBrush)
+            .composed {
+                val time by produceState(0f) {
+                    while (true) {
+                        withInfiniteAnimationFrameMillis {
+                            value = it / 100f
+                        }
+                    }
+                }
+                drawBehind {
+                    val radius = 32
+                    val innerRadius = 30
+                    drawPetalRotated(45.0 + time * 5, radius, innerRadius, density, firstPetalBrush)
+                    drawPetalRotated(80.0 - time * 10, radius, innerRadius, density, secondPetalBrush)
+                    drawPetalRotated(127.0 + time * 20, radius, innerRadius, density, thirdPetalBrush)
+                }
             }
     ) {}
 }
@@ -105,6 +118,58 @@ private fun DrawScope.drawPetal(
             quadraticBezierTo((radius - 10).dp.toPx(), (radius - 20).dp.toPx(), radius.dp.toPx(), radius.dp.toPx())
             // cubicTo((radius + 18).dp.toPx(), radius.dp.toPx(), (radius - 16).dp.toPx(), (radius - 10).dp.toPx(), pointX2.dp.toPx(), pointY2.dp.toPx())
             // relativeQuadraticBezierTo(10.dp.toPx(), 24.dp.toPx(), radius.dp.toPx(), radius.dp.toPx())
+        }
+        drawPath(
+            path = path,
+            brush = firstPetalBrush,
+            style = Fill
+        )
+    }
+}
+
+// For simply rotated petals
+private fun DrawScope.drawPetalRotated(
+    angle: Double,
+    radius: Int,
+    innerRadius: Int,
+    density: Density,
+    firstPetalBrush: Brush,
+) {
+    with(density) {
+        val curve1StartX = radius.dp.toPx()
+        val curve1StartY = radius.dp.toPx()
+        val curve1ControlX = (radius + sin(Math.toRadians(angle - 30.0)) * (innerRadius - 14)).dp.toPx()
+        val curve1ControlY = (radius + cos(Math.toRadians(angle - 30.0)) * (innerRadius - 14)).dp.toPx()
+        val curve1TargetX = (radius + sin(Math.toRadians(angle)) * innerRadius).dp.toPx()
+        val curve1TargetY = (radius + cos(Math.toRadians(angle)) * innerRadius).dp.toPx()
+
+        val curve2ControlX = (radius + sin(Math.toRadians(angle + 62.0)) * (innerRadius - 8)).dp.toPx()
+        val curve2ControlY = (radius + cos(Math.toRadians(angle + 62.0)) * (innerRadius - 8)).dp.toPx()
+        val curve2TargetX = (radius - sin(Math.toRadians(angle + 10.0)) * (innerRadius - 24)).dp.toPx()
+        val curve2TargetY = (radius - cos(Math.toRadians(angle + 10.0)) * (innerRadius - 24)).dp.toPx()
+
+        val curve3ControlX = (radius - sin(Math.toRadians(angle + 45.0)) * (innerRadius - 12)).dp.toPx()
+        val curve3ControlY = (radius - cos(Math.toRadians(angle + 45.0)) * (innerRadius - 12)).dp.toPx()
+        val curve3TargetX = (radius - sin(Math.toRadians(angle)) * innerRadius).dp.toPx()
+        val curve3TargetY = (radius - cos(Math.toRadians(angle)) * innerRadius).dp.toPx()
+
+        val curve4ControlX = (radius - sin(Math.toRadians(angle - 20.0)) * (innerRadius - 6)).dp.toPx()
+        val curve4ControlY = (radius - cos(Math.toRadians(angle - 20.0)) * (innerRadius - 6)).dp.toPx()
+
+//        drawCurveDebug(curve1StartX, curve1StartY, curve1ControlX, curve1ControlY, curve1TargetX, curve1TargetY)
+//        drawCurveDebug(curve1TargetX, curve1TargetY, curve2ControlX, curve2ControlY, curve2TargetX, curve2TargetY)
+//        drawCurveDebug(curve2TargetX, curve2TargetY, curve3ControlX, curve3ControlY, curve3TargetX, curve3TargetY)
+//        drawCurveDebug(curve3TargetX, curve3TargetY, curve4ControlX, curve4ControlY, curve1StartX, curve1StartY)
+        // drawRect(Color.Red, topLeft = Offset(32.dp.toPx(), 32.dp.toPx()), size = Size(2.dp.toPx(), 2.dp.toPx()))
+        // drawRect(Color.Red, topLeft = Offset((pointX2 + 2).dp.toPx(), (pointY2 + 2).dp.toPx()), size = Size(20.dp.toPx(), 20.dp.toPx()))
+
+
+        val path = Path().apply {
+            moveTo(curve1StartX, curve1StartY)
+            quadraticBezierTo(curve1ControlX, curve1ControlY, curve1TargetX, curve1TargetY)
+            quadraticBezierTo(curve2ControlX, curve2ControlY, curve2TargetX, curve2TargetY)
+            quadraticBezierTo(curve3ControlX, curve3ControlY, curve3TargetX, curve3TargetY)
+            quadraticBezierTo(curve4ControlX, curve4ControlY, curve1StartX, curve1StartY)
         }
         drawPath(
             path = path,
