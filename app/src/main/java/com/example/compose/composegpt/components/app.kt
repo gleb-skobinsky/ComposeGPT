@@ -89,12 +89,12 @@ fun Modifier.drawWaves() = composed {
         }
     }
     val sinSize = 6
-    val waves = 3
+    // val waves = 3
     drawBehind {
         val mean = size.width / 2
         val pointsDistance = size.width / sinSize
         val subStep = pointsDistance / 4
-        val step = size.width / sinSize / 3
+        // val step = size.width / sinSize / 3
         val points = constructXPoints(
             sinSize = sinSize,
             pointsDistance = pointsDistance,
