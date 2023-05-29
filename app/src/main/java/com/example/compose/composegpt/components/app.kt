@@ -17,6 +17,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -73,6 +75,7 @@ private fun BoxScope.RecordingButton(onAction: () -> Unit) {
                 onAction()
             }
             .clip(RoundedCornerShape(50))
+
     ) {}
 }
 
@@ -90,16 +93,81 @@ fun Modifier.drawWaves() = composed {
     drawBehind {
         val mean = size.width / 2
         val pointsDistance = size.width / sinSize
+        val subStep = pointsDistance / 4
         val step = size.width / sinSize / 3
-        val xPoints = constructXPoints(sinSize, pointsDistance, time, mean)
-        for (point in xPoints) {
-            drawRect(
-                Color.Red,
-                point,
-                Size(2.dp.toPx(), 2.dp.toPx())
-            )
+        val points = constructXPoints(
+            sinSize = sinSize,
+            pointsDistance = pointsDistance,
+            time = time,
+            mean = mean
+        )
+
+        /*
+        val strokePath = Path().apply {
+            for (index in points.indices) {
+                val offset = points[index]
+                when (index) {
+                    0 -> moveTo(offset.x, offset.y)
+                    points.indices.last -> lineTo(offset.x, offset.y)
+                    else -> {
+                        lineTo(offset.x - subStep, offset.y)
+                        lineTo(offset.x + subStep, mean * 2 - offset.y)
+                        // drawRect(Color.Red, Offset(offset.x, mean), Size(2.dp.toPx(), 2.dp.toPx()))
+                    }
+                }
+            }
         }
+         */
+        val strokePath = Path().apply {
+            for (index in points.indices) {
+                val offset = points[index]
+                when (index) {
+                    0 -> {
+                        moveTo(offset.x, offset.y)
+                    }
+
+                    points.indices.last -> {
+                        val prevOffset = points[index - 1]
+                        val sourceXNeg = prevOffset.x + subStep
+                        val sourceYNeg = mean * 2 - prevOffset.y
+                        val xMiddle = (sourceXNeg + offset.x) / 2f
+                        cubicTo(xMiddle, sourceYNeg, xMiddle, offset.y, offset.x, offset.y)
+                        // lineTo(offset.x, offset.y)
+                    }
+
+                    else -> {
+                        val prevOffset = points[index - 1]
+                        val sourceXNeg = prevOffset.x + subStep
+                        val sourceYNeg = mean * 2 - prevOffset.y
+                        val targetXPos = offset.x - subStep
+                        val targetYPos = offset.y
+                        val xMiddle1 = (sourceXNeg + targetXPos) / 2f
+                        // drawDebugRect(xMiddle1, sourceYNeg)
+                        cubicTo(xMiddle1, sourceYNeg, xMiddle1, targetYPos, targetXPos, targetYPos)
+                        // lineTo(targetXPos, targetYPos)
+                        val targetXNeg = offset.x + subStep
+                        val targetYNeg = mean * 2 - offset.y
+                        val xMiddle2 = (targetXPos + targetXNeg) / 2f
+                        cubicTo(xMiddle2, targetYPos, xMiddle2, targetYNeg, targetXNeg, targetYNeg)
+                        // lineTo(targetXNeg, targetYNeg)
+                        // drawDebugRect(xMiddle2, targetYPos)
+                    }
+                }
+            }
+        }
+        drawPath(
+            path = strokePath,
+            color = Color.White,
+            style = Stroke(
+                width = 2.dp.toPx(),
+                cap = StrokeCap.Round
+            )
+        )
     }
+}
+
+fun DrawScope.drawDebugRect(x: Float, y: Float) {
+    drawRect(Color.Red, Offset(x, y), Size(2.dp.toPx(), 2.dp.toPx()))
 }
 
 private fun constructXPoints(
@@ -111,7 +179,8 @@ private fun constructXPoints(
     val points = mutableListOf<Offset>()
     for (i in 0 until sinSize) {
         val xMin = pointsDistance * i
-        val offsetX = xMin + (time % 1 * pointsDistance)
+        val addUp = time % 1 * pointsDistance
+        val offsetX = xMin + addUp
         val offsetY = Distributor.calculateY(offsetX, mean)
         points.add(Offset(offsetX, offsetY))
     }
@@ -173,6 +242,7 @@ private fun DrawScope.sinPath(xPoints: List<Float>, mean: Flo) {
 }
  */
 
+
 object Distributor {
     private var positive: Boolean = true
 
@@ -181,16 +251,8 @@ object Distributor {
         false -> -1
     }
 
-    fun normalDistributionY(x: Float, mean: Float): Double {
-        positive = !positive
-        val stdDev = mean / 3
-        val exponent = -0.5 * ((x - mean) / stdDev).pow(2)
-        val denominator = stdDev * sqrt(2 * PI)
-        return (mean - 10) * exp(exponent) / denominator * 100 * positive.toInt()
-    }
-
     fun calculateY(x: Float, mean: Float): Float {
-        positive = !positive
+        // positive = !positive
         val stdDev = mean / 3
         val exponent = -0.5 * ((x - mean) / stdDev).pow(2)
         val denominator = stdDev * sqrt(2 * PI)
