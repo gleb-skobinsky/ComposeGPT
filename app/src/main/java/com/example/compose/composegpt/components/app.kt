@@ -1,14 +1,15 @@
 package com.example.compose.composegpt.components
 
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -19,6 +20,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -54,12 +56,13 @@ val lightBlue = Color(173, 216, 230)
 
 @Composable
 private fun BoxScope.RecordingButton(onAction: () -> Unit) {
+    var speed by remember { mutableStateOf(0.5f) }
+    var focused by remember { mutableStateOf(false) }
     Row(
         Modifier.padding(bottom = 24.dp)
             .align(Alignment.BottomCenter)
             .size(64.dp)
             .border(width = 1.dp, brush = SolidColor(lightBlue), shape = RoundedCornerShape(50))
-            /*
             .background(
                 Brush.radialGradient(
                     listOf(
@@ -69,33 +72,41 @@ private fun BoxScope.RecordingButton(onAction: () -> Unit) {
                 ),
                 RoundedCornerShape(50)
             )
-             */
-            .clickable {
-                onAction()
+            .pointerInput(Unit){
+                detectTapGestures(
+                    onLongPress = {
+                        focused = !focused
+                        speed = focused.toAnimationSpeed()
+                        if (focused) {
+                            onAction()
+                        }
+                    }
+                )
             }
             .clip(RoundedCornerShape(50))
-            .drawWaves()
+            .drawWaves(speed)
     ) {}
 }
 
-fun Modifier.drawWaves() = composed {
-    val speedRatio = 1.5f
+private fun Boolean.toAnimationSpeed() = when (this) {
+    true -> 1.5f
+    false -> 0.5f
+}
+
+fun Modifier.drawWaves(speed: Float) = composed {
     val time by produceState(0f) {
         while (true) {
             withInfiniteAnimationFrameMillis {
-                value = it / 1000f * speedRatio
+                value = it / 1000f * speed
             }
         }
     }
-    val sinSize = 6
-    // val waves = 3
+    val sinSize = 4
     drawBehind {
         val mean = size.width / 2
         val pointsDistance = size.width / sinSize
         val subStep = pointsDistance / 4
         val step = size.width / sinSize / 3
-        // drawLine(Color.Red, Offset(0f, mean), Offset(mean * 2, mean), 2.dp.toPx())
-        // drawLine(Color.Red, Offset(mean, 0f), Offset(mean, mean * 2), 2.dp.toPx())
         drawWave(sinSize, pointsDistance, time, mean, subStep, -step)
         drawWave(sinSize, pointsDistance, time, mean, subStep, 0f)
         drawWave(sinSize, pointsDistance, time, mean, subStep, step)
@@ -110,7 +121,7 @@ private fun DrawScope.drawWave(
     subStep: Float,
     initialOffset: Float,
 ) {
-    val points = constructXPoints(
+    val xPoints = constructXPoints(
         sinSize = sinSize,
         pointsDistance = pointsDistance,
         time = time,
@@ -118,32 +129,32 @@ private fun DrawScope.drawWave(
         initialOffset = initialOffset
     )
     val strokePath = Path().apply {
-        for (index in points.indices) {
-            val offset = points[index]
+        for (index in xPoints.indices) {
+            val offsetX = xPoints[index]
             when (index) {
                 0 -> {
-                    moveTo(offset.x - subStep, offset.y)
+                    val offsetY = calculateY(offsetX, mean)
+                    moveTo(offsetX - subStep, offsetY)
                 }
 
-                points.indices.last -> {
-                    val prevOffset = points[index - 1]
-                    val sourceXNeg = prevOffset.x + subStep
-                    val sourceYNeg = mean * 2 - prevOffset.y
-                    val xMiddle = (sourceXNeg + offset.x) / 2f
-                    cubicTo(xMiddle, sourceYNeg, xMiddle, offset.y, offset.x + subStep, offset.y)
-                    // lineTo(offset.x, offset.y)
+                xPoints.indices.last -> {
+                    val sourceXNeg = xPoints[index - 1] + subStep
+                    val sourceYNeg = mean * 2 - calculateY(sourceXNeg, mean)
+                    val xMiddle = (sourceXNeg + offsetX) / 2f
+                    val targetOffsetX = offsetX + subStep
+                    val targetOffsetY = calculateY(targetOffsetX, mean)
+                    cubicTo(xMiddle, sourceYNeg, xMiddle, targetOffsetY, targetOffsetX, targetOffsetY)
                 }
 
                 else -> {
-                    val prevOffset = points[index - 1]
-                    val sourceXNeg = prevOffset.x + subStep
-                    val sourceYNeg = mean * 2 - prevOffset.y
-                    val targetXPos = offset.x - subStep
-                    val targetYPos = offset.y
+                    val sourceXNeg = xPoints[index - 1] + subStep
+                    val sourceYNeg = mean * 2 - calculateY(sourceXNeg, mean)
+                    val targetXPos = offsetX - subStep
+                    val targetYPos = calculateY(targetXPos, mean)
                     val xMiddle1 = (sourceXNeg + targetXPos) / 2f
                     cubicTo(xMiddle1, sourceYNeg, xMiddle1, targetYPos, targetXPos, targetYPos)
-                    val targetXNeg = offset.x + subStep
-                    val targetYNeg = mean * 2 - offset.y
+                    val targetXNeg = offsetX + subStep
+                    val targetYNeg = mean * 2 - calculateY(targetXNeg, mean)
                     val xMiddle2 = (targetXPos + targetXNeg) / 2f
                     cubicTo(xMiddle2, targetYPos, xMiddle2, targetYNeg, targetXNeg, targetYNeg)
                 }
@@ -170,14 +181,14 @@ private fun constructXPoints(
     time: Float,
     mean: Float,
     initialOffset: Float,
-): MutableList<Offset> {
-    val points = mutableListOf<Offset>()
+): MutableList<Float> {
+    val points = mutableListOf<Float>()
     for (i in -2..sinSize + 1) {
         val xMin = initialOffset + pointsDistance * i
         val addUp = time % 1 * pointsDistance
         val offsetX = xMin + addUp
-        val offsetY = calculateY(offsetX, mean)
-        points.add(Offset(offsetX, offsetY))
+        // val offsetY = calculateY(offsetX, mean)
+        points.add(offsetX)
     }
     // points.add(0, Offset(0f, mean))
     // points.add(Offset(mean * 2, mean))
