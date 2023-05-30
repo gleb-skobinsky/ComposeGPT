@@ -1,10 +1,8 @@
 package com.example.compose.composegpt.components
 
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -72,7 +70,7 @@ private fun BoxScope.RecordingButton(onAction: () -> Unit) {
                 ),
                 RoundedCornerShape(50)
             )
-            .pointerInput(Unit){
+            .pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = {
                         focused = !focused
@@ -125,7 +123,6 @@ private fun DrawScope.drawWave(
         sinSize = sinSize,
         pointsDistance = pointsDistance,
         time = time,
-        mean = mean,
         initialOffset = initialOffset
     )
     val strokePath = Path().apply {
@@ -179,7 +176,6 @@ private fun constructXPoints(
     sinSize: Int,
     pointsDistance: Float,
     time: Float,
-    mean: Float,
     initialOffset: Float,
 ): MutableList<Float> {
     val points = mutableListOf<Float>()
@@ -187,11 +183,8 @@ private fun constructXPoints(
         val xMin = initialOffset + pointsDistance * i
         val addUp = time % 1 * pointsDistance
         val offsetX = xMin + addUp
-        // val offsetY = calculateY(offsetX, mean)
         points.add(offsetX)
     }
-    // points.add(0, Offset(0f, mean))
-    // points.add(Offset(mean * 2, mean))
     return points
 }
 
